@@ -3,12 +3,21 @@ const World = Matter.Composite;/* Modulo responsável pela coleção de Matter.B
                                     UM COMPOSITE PODE CONTER DESDE UM ÚNICO CORPO ATÉ UM MUNDO INTEIRO 
                                     */
 const Bodies = Matter.Bodies;/* O módulo Matter.Bodies contém métodos para criar corpos rígidos com configurações*/
+const Constraint = Matter.Constraint;
 
 var engine, world;
 var solo, box1, box2, box3, box4;
 var pig1, pig2;
 var log1, log2, log3, log4;
-var bird;
+var bird, fundoImg, plataforma, porrete, ligacao;
+
+
+function preload(){
+    fundoImg = loadImage("sprites/bg.png");
+
+}
+
+
 function setup() {
     var canvas = createCanvas(1200, 400);
     engine = Engine.create();
@@ -19,6 +28,7 @@ function setup() {
     //angleMode(RADIANS); unidade padrão!
     //angleMode(DEGREES); unidade alternativa, porém aproximada
     solo = new Solo(width / 2, height, width, 20);
+    plataforma = new Solo(150, 305, 300, 170);
 
     box1 = new Caixas(700, 320, 70, 70);
     box2 = new Caixas(920, 320, 70, 70);
@@ -35,18 +45,30 @@ function setup() {
     log4 = new Troncos(870, 120, 150, -PI / 7);
 
     bird = new Passaros(100, 100);
+    porrete = new Troncos(230, 180, 80, PI / 2);
+
+    var options ={
+        bodyA: bird.body,
+        bodyB: porrete.body
+    }
+
+
+    ligacao = Constraint.create(options);
+    World.add(world, ligacao);
+    
 
 
 
 }
 
 function draw() {
-    background(0);
+    background(fundoImg);
     Engine.update(engine);
     //console.log(box2.body.position.x);
     //console.log(box2.body.position.y);
     //console.log(box2.body.angle);
     solo.display();
+    plataforma.display();
     box1.display();
     box2.display();
     pig1.display();
@@ -62,6 +84,11 @@ function draw() {
     log4.display();
 
     bird.display();
+    porrete.display();
+    stroke("brown");
+    //strokeWeigth(4);
+
+    line(bird.body.position.x, bird.body.position.y, porrete.body.position.x,porrete.body.position.y);
 
 
 
@@ -97,9 +124,9 @@ class Passaros extends BaseClass {
     constructor(x, y) {
         super(x, y, 50, 50);
         this.imagem = loadImage("sprites/bird.png");
-        this.body.restitution = 0.8,
-            this.body.friction = 1.0,
-            this.body.density = 1.0
+        this.body.restitution = 0.8;
+        this.body.friction = 1.0;
+        this.body.density = 1.0;
 
 
     }
@@ -134,7 +161,7 @@ class Solo extends BaseClass {
 
         this.body.isStatic = true;
 
-        this.imagem = loadImage("sprites/ground.png");
+        //this.imagem = loadImage("sprites/ground.png");
     }
     display() {
 
