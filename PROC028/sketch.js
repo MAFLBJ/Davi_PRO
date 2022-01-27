@@ -11,6 +11,7 @@ var pig1, pig2;
 var log1, log2, log3, log4;
 var plataform;
 var constrainedLog;//restrição do tronco
+var estilingue1;
 
 
 function preload() {
@@ -31,7 +32,7 @@ function setup() {
 
     solo = new Solo(600, height, 1200, 20);
     plataform = new Solo(150, 305, 300, 170);
-    constrainedLog = new Troncos(230, 180, 80, PI / 2);
+    //constrainedLog = new Troncos(230, 180, 80, PI / 2);
 
 
     box1 = new Caixas(700, 320, 70, 70);
@@ -50,9 +51,7 @@ function setup() {
     log4 = new Troncos(870, 120, 150, -PI / 7);
 
     bird = new Passaros(100, 100);
-    restricao1 = new Restricao(bird.body, constrainedLog.body, 0.04, 50);
-
-
+    estilingue1 = new Estilingue(bird.body, {x:200, y:100}, 0.4, 20);
 
 }
 
@@ -81,8 +80,9 @@ function draw() {
     log4.display();
 
     bird.display();
-    constrainedLog.display();
-    restricao1.display();
+    //constrainedLog.display();
+    estilingue1.display();
+    
 }
 
 
@@ -129,8 +129,8 @@ class Passaros extends BaseClass {
         pos.y = mouseY;
         var angle = this.body.angle;
         */
-        this.body.position.x = mouseX;
-        this.body.position.y = mouseY;
+        //this.body.position.x = mouseX;
+        //this.body.position.y = mouseY;
 
         super.display();
     }
@@ -219,31 +219,47 @@ class Troncos extends BaseClass {
     }
 };
 
-class Restricao {
-    constructor(corpoA, corpoB, rigidez, comp) {
+class Estilingue {
+    constructor(corpoA, pontoB, rigidez, comp) {
         this.corpoA = corpoA;
-        this.corpoB = corpoB;
+        this.pontoB = pontoB;
         this.rigidez = rigidez;
         this.comp = comp;
+        
         var options = {
-            bodyA: corpoA,
-            bodyB: corpoB,
-            stiffness: rigidez,
-            length: comp
+            bodyA: this.corpoA,
+            pointB: this.pontoB,
+            stiffness: this.rigidez,
+            length: this.comp
         }
-
-        this.restricao = Constraint.create(options);
-        World.add(world, this.restricao);
+        
+        this.estilingue = Constraint.create(options);
+        World.add(world, this.estilingue);
 
 
     }
+    fly(){
+        this.estilingue.bodyA = null;
+    }
+    
     display() {
+        if(this.estilingue.bodyA != null){
         push();
         strokeWeight(4);
         fill("black");
-        line(this.corpoA.position.x, this.corpoA.position.y, this.corpoB.position.x, this.corpoB.position.y);
+        line(this.corpoA.position.x, this.corpoA.position.y, this.pontoB.x, this.pontoB.y);
         pop();
+    }
 
 
     }
+}
+
+function mouseDragged(){
+    Matter.Body.setPosition(bird.body, {x: mouseX, y:mouseY});
+
+}
+function mouseReleased(){
+    estilingue1.fly()
+
 }
